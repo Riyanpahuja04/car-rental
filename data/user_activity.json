@@ -1,0 +1,22 @@
+[
+  {
+    "activityId": 1,
+    "user": "demo@example.com",
+    "action": "login",
+    "timestamp": "2025-05-24T10:00:00Z"
+  },
+  {
+    "activityId": 2,
+    "user": "demo@example.com",
+    "action": "view_car",
+    "vin": "1HGCM82633A004352",
+    "timestamp": "2025-05-24T10:01:00Z"
+  },
+  {
+    "activityId": 3,
+    "user": "demo@example.com",
+    "action": "book_car",
+    "vin": "1HGCM82633A004352",
+    "timestamp": "2025-05-24T10:02:00Z"
+  }
+]

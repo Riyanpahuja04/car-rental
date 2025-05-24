@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Car Rental System - Book cars online easily and securely.">
+  <title>Car Rental System</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <a href="index.html" aria-label="Car Rental Home">
+        <img src="/assets/logo.png" alt="Car Rental Logo" class="site-logo" />
+      </a>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="cars.html">Cars</a></li>
+        <li><a href="booking.html">Book Now</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <section class="hero">
+      <h1>Welcome to the Car Rental System</h1>
+      <p>Book your car online, quickly and securely.</p>
+      <a href="cars.html" class="cta">View Cars</a>
+    </section>
+    <section id="car-list-home" class="car-grid-section">
+      <h2>Available Cars</h2>
+      <div id="car-list" class="car-grid"></div>
+      <button id="reservation-icon" aria-label="Go to Reservation Page">
+        <img src="/assets/reservation-icon.svg" alt="Reservation Icon" style="width:32px;height:32px;vertical-align:middle;" />
+      </button>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 Car Rental System. All rights reserved.</p>
+  </footer>
+  <script src="/assets/cars.js"></script>
+  <script src="/assets/home-cars.js"></script>
+</body>
+</html>

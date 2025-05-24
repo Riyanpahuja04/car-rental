@@ -1,0 +1,8 @@
+<svg width="120" height="48" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="48" rx="12" fill="#003366"/>
+  <text x="60" y="30" text-anchor="middle" fill="#fff" font-size="24" font-family="Arial, sans-serif" font-weight="bold">CAR RENTAL</text>
+  <rect x="12" y="12" width="24" height="24" rx="6" fill="#fff"/>
+  <rect x="84" y="12" width="24" height="24" rx="6" fill="#fff"/>
+  <circle cx="24" cy="36" r="4" fill="#003366"/>
+  <circle cx="96" cy="36" r="4" fill="#003366"/>
+</svg>
