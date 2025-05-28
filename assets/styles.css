@@ -132,9 +132,19 @@ footer {
 /* Grid Layout for Car List */
 #car-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin: 2rem 0;
+}
+@media (max-width: 900px) {
+  #car-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  #car-list {
+    grid-template-columns: 1fr;
+  }
 }
 .car-grid-section {
   margin: 2rem auto;
@@ -222,6 +232,23 @@ form button.cta:hover {
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
 }
 
+/* Reservation Header Link Styles */
+#reservation-header-link {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  text-decoration: none;
+}
+#reservation-header-link img {
+  width: 1.7em;
+  height: 1.7em;
+  vertical-align: middle;
+  transition: filter 0.2s;
+}
+#reservation-header-link:focus img, #reservation-header-link:hover img {
+  filter: drop-shadow(0 2px 8px #ffd700) brightness(1.2);
+}
+
 /* Search Box and Suggestions */
 #car-filter {
   position: relative;
@@ -236,23 +263,14 @@ form button.cta:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   padding: 1rem;
 }
-#car-filter label {
-  font-weight: bold;
-}
-#car-filter select {
-  padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-#search, #search-home {
+#car-filter input[type="text"] {
   width: 100%;
   padding: 0.75rem;
   border-radius: 4px;
   border: 1px solid #ccc;
   font-size: 1rem;
 }
-#suggestion-box, #suggestion-box-home {
+#suggestion-box {
   position: absolute;
   top: 100%;
   left: 0;
@@ -267,12 +285,13 @@ form button.cta:hover {
   max-height: 180px;
   overflow-y: auto;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: none;
 }
-#suggestion-box li, #suggestion-box-home li {
+#suggestion-box li {
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
-#suggestion-box li:hover, #suggestion-box li:focus, #suggestion-box-home li:hover, #suggestion-box-home li:focus {
+#suggestion-box li:hover, #suggestion-box li:focus {
   background: #e3eafc;
   outline: none;
 }

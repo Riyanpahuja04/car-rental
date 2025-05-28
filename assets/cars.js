@@ -36,52 +36,66 @@ window.clearReservationForm = function() {
   localStorage.removeItem('reservationForm');
 };
 // --- Render Car Grid with AJAX ---
-function createFilters(cars) {
+function createFilters(cars, filterPrefix = '') {
   const carTypes = Array.from(new Set(cars.map(car => car.type))).filter(Boolean);
   const carBrands = Array.from(new Set(cars.map(car => car.make))).filter(Boolean);
-  const filterDiv = document.getElementById('car-filter');
+  const filterDiv = document.getElementById(filterPrefix + 'car-filter');
   if (!filterDiv) return;
-  // Clear previous filters
-  filterDiv.innerHTML = '';
+  // Save current filter values before clearing
+  const prevType = document.getElementById(filterPrefix + 'type-filter')?.value || '';
+  const prevBrand = document.getElementById(filterPrefix + 'brand-filter')?.value || '';
+  // Remove old filters if present
+  filterDiv.querySelectorAll('label, select').forEach(el => el.remove());
   // Type filter
   const typeLabel = document.createElement('label');
   typeLabel.textContent = 'Type:';
-  typeLabel.setAttribute('for', 'type-filter');
+  typeLabel.setAttribute('for', filterPrefix + 'type-filter');
   typeLabel.style.marginRight = '0.5rem';
   const typeSelect = document.createElement('select');
-  typeSelect.id = 'type-filter';
+  typeSelect.id = filterPrefix + 'type-filter';
   typeSelect.innerHTML = '<option value="">All</option>' + carTypes.map(t => `<option value="${t}">${t}</option>`).join('');
   typeSelect.style.marginRight = '1rem';
+  // Restore previous value if possible
+  typeSelect.value = prevType;
   // Brand filter
   const brandLabel = document.createElement('label');
   brandLabel.textContent = 'Brand:';
-  brandLabel.setAttribute('for', 'brand-filter');
+  brandLabel.setAttribute('for', filterPrefix + 'brand-filter');
   brandLabel.style.marginRight = '0.5rem';
   const brandSelect = document.createElement('select');
-  brandSelect.id = 'brand-filter';
+  brandSelect.id = filterPrefix + 'brand-filter';
   brandSelect.innerHTML = '<option value="">All</option>' + carBrands.map(b => `<option value="${b}">${b}</option>`).join('');
+  // Restore previous value if possible
+  brandSelect.value = prevBrand;
   // Add to filterDiv
   filterDiv.appendChild(typeLabel);
   filterDiv.appendChild(typeSelect);
   filterDiv.appendChild(brandLabel);
   filterDiv.appendChild(brandSelect);
+  // Add listeners
+  typeSelect.addEventListener('change', function() {
+    renderCarsAJAX(document.getElementById(filterPrefix + 'search')?.value?.toLowerCase() || '', filterPrefix);
+  });
+  brandSelect.addEventListener('change', function() {
+    renderCarsAJAX(document.getElementById(filterPrefix + 'search')?.value?.toLowerCase() || '', filterPrefix);
+  });
 }
 
-function getFilterValues() {
-  const type = document.getElementById('type-filter')?.value || '';
-  const brand = document.getElementById('brand-filter')?.value || '';
+function getFilterValues(filterPrefix = '') {
+  const type = document.getElementById(filterPrefix + 'type-filter')?.value || '';
+  const brand = document.getElementById(filterPrefix + 'brand-filter')?.value || '';
   return { type, brand };
 }
 
 // --- Use AJAX to fetch car data and update UI dynamically ---
-function renderCarsAJAX(filter = '') {
+function renderCarsAJAX(filter = '', filterPrefix = '') {
   window.fetchAllCars(function(cars) {
-    createFilters(cars);
-    const { type, brand } = getFilterValues();
-    const list = document.getElementById('car-list');
+    createFilters(cars, filterPrefix);
+    const { type, brand } = getFilterValues(filterPrefix);
+    const list = document.getElementById(filterPrefix + 'car-list');
     if (!list) return;
     list.innerHTML = '';
-    const filtered = cars.filter(car => {
+    let filtered = cars.filter(car => {
       const matchesType = !type || car.type === type;
       const matchesBrand = !brand || car.make === brand;
       const matchesKeyword =
@@ -91,6 +105,10 @@ function renderCarsAJAX(filter = '') {
         (car.description && car.description.toLowerCase().includes(filter));
       return matchesType && matchesBrand && matchesKeyword;
     });
+    // Only show available cars on homepage (filterPrefix === 'home-')
+    if (filterPrefix === 'home-') {
+      filtered = filtered.filter(car => car.available);
+    }
     if (filtered.length === 0) {
       list.innerHTML = '<p>No cars found.</p>';
       return;
@@ -101,12 +119,8 @@ function renderCarsAJAX(filter = '') {
       card.innerHTML = `
         <img src="${car.image}" alt="${car.make} ${car.model}" loading="lazy" />
         <h3>${car.make} ${car.model}</h3>
-        <p>Type: ${car.type}</p>
-        <p>Year: ${car.year}</p>
-        <p>Mileage: ${car.mileage.toLocaleString()} km</p>
-        <p>Fuel: ${car.fuel}</p>
+        <p>Year: ${car.year} | Mileage: ${car.mileage.toLocaleString()} km | Fuel: ${car.fuel}</p>
         <p>Price per day: $${car.price}</p>
-        <p>${car.description || ''}</p>
         <p style="color:${car.available ? 'green' : 'red'};font-weight:bold;">${car.available ? 'Available' : 'Not Available'}</p>
         <a href="booking.html?vin=${car.vin}" class="cta rent-btn" ${car.available ? '' : 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:0.5;"'}>Rent</a>
       `;
@@ -130,59 +144,34 @@ function renderCarsAJAX(filter = '') {
 // Initial render
 renderCarsAJAX();
 
-// Add real-time keyword suggestions and improved search
+// --- Real-time search box and suggestions ---
 const searchInput = document.getElementById('search');
+const suggestionBox = document.getElementById('suggestion-box');
 
-// Collect all possible keywords from car data
 let allCars = [];
+let searchKeywords = [];
 window.fetchAllCars(cars => {
   allCars = cars;
-  // Initialize search keywords
-  initSearchKeywords(cars);
-});
-
-function initSearchKeywords(cars) {
-  // Create keyword set
+  // Build unique keyword list from make, model, type, and description
   const keywords = new Set();
   cars.forEach(car => {
     keywords.add(car.make);
     keywords.add(car.model);
     keywords.add(car.type);
     if (car.description) {
-      car.description.split(' ').forEach(word => {
-        keywords.add(word);
+      car.description.split(/\s+/).forEach(word => {
+        if (word.length > 1) keywords.add(word);
       });
     }
   });
-  // Sort keywords for better relevance
-  const sortedKeywords = Array.from(keywords).sort((a, b) => b.length - a.length);
-  window.searchKeywords = sortedKeywords;
-}
-
-// Create suggestion box
-let suggestionBox = document.getElementById('suggestion-box');
-if (!suggestionBox) {
-  suggestionBox = document.createElement('ul');
-  suggestionBox.id = 'suggestion-box';
-  suggestionBox.style.position = 'absolute';
-  suggestionBox.style.background = '#fff';
-  suggestionBox.style.border = '1px solid #ccc';
-  suggestionBox.style.zIndex = '10';
-  suggestionBox.style.listStyle = 'none';
-  suggestionBox.style.padding = '0';
-  suggestionBox.style.margin = '0';
-  suggestionBox.style.width = '100%';
-  suggestionBox.style.maxHeight = '180px';
-  suggestionBox.style.overflowY = 'auto';
-  suggestionBox.style.display = 'none';
-  searchInput.parentNode.appendChild(suggestionBox);
-}
+  searchKeywords = Array.from(keywords).filter(Boolean);
+});
 
 searchInput.addEventListener('input', function(e) {
   const value = e.target.value.toLowerCase();
   // Show suggestions
   if (value.length > 0) {
-    const matches = window.searchKeywords.filter(k => k.toLowerCase().includes(value));
+    const matches = searchKeywords.filter(k => k.toLowerCase().includes(value));
     suggestionBox.innerHTML = '';
     matches.slice(0, 8).forEach(match => {
       const li = document.createElement('li');
@@ -230,10 +219,12 @@ function setupFilterListeners() {
   });
 }
 
-// On DOMContentLoaded, create filters and set up listeners
+// On DOMContentLoaded, always render filters and grid
 if (document.getElementById('car-filter')) {
-  createFilters([]);
-  setupFilterListeners();
+  window.fetchAllCars(cars => {
+    createFilters(cars);
+    renderCarsAJAX();
+  });
 }
 
 // Initial render
@@ -258,3 +249,14 @@ document.addEventListener('click', function(e) {
     if (vin) localStorage.setItem('lastCarVIN', vin);
   }
 });
+
+// On homepage, use 'home-' prefix for filter and car-list section
+if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '') {
+  document.getElementById('car-list-home').querySelector('h2').textContent = 'Available Cars';
+  renderCarsAJAX('', 'home-');
+}
+// On cars page, show all cars and update section title
+if (window.location.pathname.endsWith('cars.html')) {
+  document.querySelector('h2').textContent = 'All Cars';
+  renderCarsAJAX('', '');
+}

@@ -14,11 +14,10 @@
       </a>
     </div>
     <nav>
-      <ul>
+      <ul id="navbar-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="cars.html">Cars</a></li>
         <li><a href="booking.html">Book Now</a></li>
-        <li><a href="login.html">Login</a></li>
         <li><a href="admin.html">Admin</a></li>
       </ul>
     </nav>
@@ -46,5 +45,28 @@
   <footer>
     <p>&copy; 2025 Car Rental System. All rights reserved.</p>
   </footer>
+  <script>
+    // Navbar login/logout logic
+    function updateAuthLink() {
+      const loggedIn = localStorage.getItem('userLoggedIn') === 'true';
+      const authLink = document.getElementById('auth-link');
+      if (!authLink) return;
+      if (loggedIn) {
+        authLink.textContent = 'Logout';
+        authLink.href = '#';
+        authLink.onclick = function(e) {
+          e.preventDefault();
+          localStorage.removeItem('userLoggedIn');
+          // Optionally clear other user data here
+          window.location.reload();
+        };
+      } else {
+        authLink.textContent = 'Login';
+        authLink.href = 'login.html';
+        authLink.onclick = null;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateAuthLink);
+  </script>
 </body>
 </html>

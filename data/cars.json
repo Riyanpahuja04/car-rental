@@ -8,8 +8,8 @@
     "mileage": 15000,
     "fuel": "Petrol",
     "price": 50,
-    "available": false,
-    "image": "https://source.unsplash.com/400x200/?toyota,car",
+    "available": true,
+    "image": "https://images.unsplash.com/photo-1626072557464-90403d788e8d?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Reliable and fuel-efficient."
   },
   {
@@ -21,8 +21,8 @@
     "mileage": 12000,
     "fuel": "Petrol",
     "price": 50,
-    "available": true,
-    "image": "https://source.unsplash.com/400x200/?toyota,car",
+    "available": false,
+    "image": "https://images.unsplash.com/photo-1626072557464-90403d788e8d?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Reliable and fuel-efficient."
   },
   {
@@ -35,7 +35,7 @@
     "fuel": "Petrol",
     "price": 55,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?toyota,car",
+    "image": "https://images.unsplash.com/photo-1626072557464-90403d788e8d?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Latest model, low mileage."
   },
   {
@@ -48,7 +48,7 @@
     "fuel": "Petrol",
     "price": 55,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?honda,car",
+    "image": "https://carsales.pxcrush.net/carsales/car/dealer/5gn3ummuoqsus7dpuadcbgtxm.jpg?pxc_method=gravityfill&pxc_bgtype=self&pxc_size=900,600",
     "description": "Comfortable and stylish."
   },
   {
@@ -61,7 +61,7 @@
     "fuel": "Petrol",
     "price": 58,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?honda,car",
+    "image": "https://carsales.pxcrush.net/carsales/car/dealer/5gn3ummuoqsus7dpuadcbgtxm.jpg?pxc_method=gravityfill&pxc_bgtype=self&pxc_size=900,600",
     "description": "Comfortable and stylish."
   },
   {
@@ -74,7 +74,7 @@
     "fuel": "Diesel",
     "price": 70,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?ford,suv",
+    "image": "https://hips.hearstapps.com/hmg-prod/images/2023-ford-escape-st-line-elite-rapid-red-01-1666667349.jpg?crop=0.755xw:0.644xh;0.109xw,0.204xh&resize=1200:*",
     "description": "Spacious and powerful."
   },
   {
@@ -87,20 +87,20 @@
     "fuel": "Diesel",
     "price": 68,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?ford,suv",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/2021_Ford_Escape_Hybrid_SEL_AWD_in_Oxford_White%2C_front_left.jpg/1200px-2021_Ford_Escape_Hybrid_SEL_AWD_in_Oxford_White%2C_front_left.jpg",
     "description": "Spacious and powerful."
   },
   {
     "vin": "4HGCM82633A004359",
     "make": "Tesla",
-    "model": "Model 3",
+    "model": "Model Y",
     "type": "Electric",
     "year": 2024,
     "mileage": 5000,
     "fuel": "Electric",
     "price": 120,
-    "available": false,
-    "image": "https://source.unsplash.com/400x200/?tesla,car",
+    "available": true,
+    "image": "https://images.unsplash.com/photo-1600661288038-cb63953bfc9f?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Eco-friendly and high-tech."
   },
   {
@@ -113,7 +113,7 @@
     "fuel": "Electric",
     "price": 115,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?tesla,car",
+    "image": "https://images.unsplash.com/photo-1585011664466-b7bbe92f34ef?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Eco-friendly and high-tech."
   },
   {
@@ -126,7 +126,7 @@
     "fuel": "Petrol",
     "price": 110,
     "available": true,
-    "image": "https://source.unsplash.com/400x200/?bmw,suv",
+    "image": "https://images.unsplash.com/flagged/photo-1553505192-acca7d4509be?q=200&w=400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "description": "Luxury and performance."
   }
 ]

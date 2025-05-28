@@ -15,23 +15,31 @@
       </a>
     </div>
     <nav>
-      <ul>
+      <ul id="navbar-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="cars.html">Cars</a></li>
         <li><a href="booking.html">Book Now</a></li>
-        <li><a href="login.html">Login</a></li>
-        <li><a href="admin.html">Admin</a></li>
       </ul>
     </nav>
   </header>
+  <div id="alert-container"></div>
   <main>
     <section class="hero">
       <h1>Welcome to the Car Rental System</h1>
       <p>Book your car online, quickly and securely.</p>
       <a href="cars.html" class="cta">View Cars</a>
     </section>
+    <section id="car-filter" style="position:relative;max-width:600px;margin:2rem auto 0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:1rem;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:1rem;">
+      <input type="text" id="search" placeholder="Search by make, model, type, or description..." aria-label="Search cars" style="width:100%;padding:0.75rem;border-radius:4px;border:1px solid #ccc;font-size:1rem;" />
+      <ul id="suggestion-box" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc;z-index:10;list-style:none;padding:0;margin:0;width:100%;max-height:180px;overflow-y:auto;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:none;"></ul>
+    </section>
     <section id="car-list-home" class="car-grid-section">
-      <h2>Available Cars</h2>
+      <div style="display:flex;align-items:center;gap:0.5em;">
+        <h2 style="margin:0;">Available Cars</h2>
+        <a href="booking.html" id="reservation-header-link" style="display:flex;align-items:center;padding-left:8px;text-decoration:none;">
+          <img src="/assets/reservation-icon.svg" alt="Go to Reservation Page" style="width:1.7em;height:1.7em;vertical-align:middle;" />
+        </a>
+      </div>
       <div id="car-list" class="car-grid"></div>
       <button id="reservation-icon" aria-label="Go to Reservation Page">
         <img src="/assets/reservation-icon.svg" alt="Reservation Icon" style="width:32px;height:32px;vertical-align:middle;" />

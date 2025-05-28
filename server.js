@@ -53,9 +53,16 @@ app.get('/api/users', (req, res) => {
 
 app.post('/api/users', (req, res) => {
   const users = db.getAllUsers();
-  const { email, password, name, license, phone } = req.body;
-  if (users.find(u => u.email === email)) return res.status(400).json({ error: 'User exists' });
-  const user = { email, password, name, license, phone, registered: new Date().toISOString() };
+  const { email, password } = req.body;
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!cleanEmail || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+  if (users.find(u => (u.email || '').trim().toLowerCase() === cleanEmail)) {
+    return res.status(400).json({ error: 'User exists' });
+  }
+  // Only email and password for registration
+  const user = { email: cleanEmail, password, registered: new Date().toISOString() };
   users.push(user);
   db.saveAllUsers(users);
   res.json(user);
@@ -70,13 +77,15 @@ app.post('/api/activity', (req, res) => {
 
 // --- Login ---
 app.post('/api/login', (req, res) => {
+  console.log('Login attempt:', req.body);
   const { email, password } = req.body;
-  console.log('Login attempt:', email, password);
-  const users = JSON.parse(fs.readFileSync(usersFile, 'utf8'));
-  const user = users.find(u => u.email === email && u.password === password);
-  console.log('User found:', user.email, user.password);
+  const users = db.getAllUsers();
+  // Trim and lowercase email for comparison
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const user = users.find(u => (u.email || '').trim().toLowerCase() === cleanEmail && u.password === password);
   if (user) {
-    res.json({ success: true, user: { email: user.email, name: user.name } });
+    console.log(`User logged in: ${user.email}`);
+    res.json({ success: true, user: { email: user.email, name: user.name || '' } });
   } else {
     res.status(401).json({ success: false, error: 'Invalid credentials' });
   }

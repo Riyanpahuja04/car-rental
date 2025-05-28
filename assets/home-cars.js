@@ -1,21 +1,64 @@
 // home-cars.js: Render car grid on homepage and handle reservation icon
 // Reuse the same car data as cars.js
 
-// --- AJAX-based Home Car Grid ---
-function fetchHomeCars(callback) {
-  fetch('/api/cars')
-    .then(res => res.json())
-    .then(cars => callback(cars))
-    .catch(() => callback([]));
+// --- AJAX-based Home Car Grid with unified search/filter logic ---
+function createFilters(cars) {
+  const carTypes = Array.from(new Set(cars.map(car => car.type))).filter(Boolean);
+  const carBrands = Array.from(new Set(cars.map(car => car.make))).filter(Boolean);
+  const filterDiv = document.getElementById('car-filter');
+  if (!filterDiv) return;
+  // Save current filter values before clearing
+  const prevType = document.getElementById('type-filter')?.value || '';
+  const prevBrand = document.getElementById('brand-filter')?.value || '';
+  // Remove old filters if present
+  filterDiv.querySelectorAll('label, select').forEach(el => el.remove());
+  // Type filter
+  const typeLabel = document.createElement('label');
+  typeLabel.textContent = 'Type:';
+  typeLabel.setAttribute('for', 'type-filter');
+  typeLabel.style.marginRight = '0.5rem';
+  const typeSelect = document.createElement('select');
+  typeSelect.id = 'type-filter';
+  typeSelect.innerHTML = '<option value="">All</option>' + carTypes.map(t => `<option value="${t}">${t}</option>`).join('');
+  typeSelect.style.marginRight = '1rem';
+  typeSelect.value = prevType;
+  // Brand filter
+  const brandLabel = document.createElement('label');
+  brandLabel.textContent = 'Brand:';
+  brandLabel.setAttribute('for', 'brand-filter');
+  brandLabel.style.marginRight = '0.5rem';
+  const brandSelect = document.createElement('select');
+  brandSelect.id = 'brand-filter';
+  brandSelect.innerHTML = '<option value="">All</option>' + carBrands.map(b => `<option value="${b}">${b}</option>`).join('');
+  brandSelect.value = prevBrand;
+  // Add to filterDiv
+  filterDiv.appendChild(typeLabel);
+  filterDiv.appendChild(typeSelect);
+  filterDiv.appendChild(brandLabel);
+  filterDiv.appendChild(brandSelect);
+  // Add listeners
+  typeSelect.addEventListener('change', function() {
+    renderCarsAJAX(document.getElementById('search')?.value?.toLowerCase() || '');
+  });
+  brandSelect.addEventListener('change', function() {
+    renderCarsAJAX(document.getElementById('search')?.value?.toLowerCase() || '');
+  });
 }
 
-function renderHomeCarsAJAX(filter = '') {
-  fetchHomeCars(function(homeCars) {
-    const { type, brand } = getHomeFilterValues();
+function getFilterValues() {
+  const type = document.getElementById('type-filter')?.value || '';
+  const brand = document.getElementById('brand-filter')?.value || '';
+  return { type, brand };
+}
+
+function renderCarsAJAX(filter = '') {
+  window.fetchAllCars(function(cars) {
+    createFilters(cars);
+    const { type, brand } = getFilterValues();
     const list = document.getElementById('car-list');
     if (!list) return;
     list.innerHTML = '';
-    const filtered = homeCars.filter(car => {
+    const filtered = cars.filter(car => {
       const matchesType = !type || car.type === type;
       const matchesBrand = !brand || car.make === brand;
       const matchesKeyword =
@@ -35,12 +78,7 @@ function renderHomeCarsAJAX(filter = '') {
       card.innerHTML = `
         <img src="${car.image}" alt="${car.make} ${car.model}" loading="lazy" />
         <h3>${car.make} ${car.model}</h3>
-        <p>Type: ${car.type}</p>
-        <p>Year: ${car.year}</p>
-        <p>Mileage: ${car.mileage.toLocaleString()} km</p>
-        <p>Fuel: ${car.fuel}</p>
         <p>Price per day: $${car.price}</p>
-        <p>${car.description || ''}</p>
         <p style="color:${car.available ? 'green' : 'red'};font-weight:bold;">${car.available ? 'Available' : 'Not Available'}</p>
         <a href="booking.html?vin=${car.vin}" class="cta rent-btn" ${car.available ? '' : 'aria-disabled="true" tabindex="-1" style="pointer-events:none;opacity:0.5;"'}>Rent</a>
       `;
@@ -61,133 +99,72 @@ function renderHomeCarsAJAX(filter = '') {
   });
 }
 
-// Update filter and search logic to always use window.carRentalCars
-function createHomeFilters() {
-  fetchHomeCars(function(homeCars) {
-    const carTypes = Array.from(new Set(homeCars.map(car => car.type))).filter(Boolean);
-    const carBrands = Array.from(new Set(homeCars.map(car => car.make))).filter(Boolean);
-    const filterDiv = document.createElement('div');
-    filterDiv.id = 'car-filter';
-    // Type filter
-    const typeLabel = document.createElement('label');
-    typeLabel.textContent = 'Type:';
-    typeLabel.setAttribute('for', 'type-filter-home');
-    typeLabel.style.marginRight = '0.5rem';
-    const typeSelect = document.createElement('select');
-    typeSelect.id = 'type-filter-home';
-    typeSelect.innerHTML = '<option value="">All</option>' + carTypes.map(t => `<option value="${t}">${t}</option>`).join('');
-    typeSelect.style.marginRight = '1rem';
-    // Brand filter
-    const brandLabel = document.createElement('label');
-    brandLabel.textContent = 'Brand:';
-    brandLabel.setAttribute('for', 'brand-filter-home');
-    brandLabel.style.marginRight = '0.5rem';
-    const brandSelect = document.createElement('select');
-    brandSelect.id = 'brand-filter-home';
-    brandSelect.innerHTML = '<option value="">All</option>' + carBrands.map(b => `<option value="${b}">${b}</option>`).join('');
-    // Add to filterDiv
-    filterDiv.appendChild(typeLabel);
-    filterDiv.appendChild(typeSelect);
-    filterDiv.appendChild(brandLabel);
-    filterDiv.appendChild(brandSelect);
-    // Insert above car grid
-    const gridSection = document.getElementById('car-list-home');
-    if (gridSection) gridSection.insertBefore(filterDiv, gridSection.querySelector('h2').nextSibling);
-  });
-}
+// --- Real-time search box and suggestions for homepage ---
+const searchInput = document.getElementById('search');
+const suggestionBox = document.getElementById('suggestion-box');
 
-function getHomeFilterValues() {
-  const type = document.getElementById('type-filter-home')?.value || '';
-  const brand = document.getElementById('brand-filter-home')?.value || '';
-  return { type, brand };
-}
-
-function setupHomeFilterListeners() {
-  document.getElementById('type-filter-home')?.addEventListener('change', function() {
-    renderHomeCarsAJAX(document.getElementById('search-home')?.value?.toLowerCase() || '');
+let allCars = [];
+let searchKeywords = [];
+window.fetchAllCars(cars => {
+  allCars = cars;
+  // Build unique keyword list from make, model, type, and description
+  const keywords = new Set();
+  cars.forEach(car => {
+    keywords.add(car.make);
+    keywords.add(car.model);
+    keywords.add(car.type);
+    if (car.description) {
+      car.description.split(/\s+/).forEach(word => {
+        if (word.length > 1) keywords.add(word);
+      });
+    }
   });
-  document.getElementById('brand-filter-home')?.addEventListener('change', function() {
-    renderHomeCarsAJAX(document.getElementById('search-home')?.value?.toLowerCase() || '');
-  });
-}
+  searchKeywords = Array.from(keywords).filter(Boolean);
+});
 
-function createHomeSearchBox() {
-  fetchHomeCars(function(homeCars) {
-    const filterDiv = document.getElementById('car-filter');
-    if (!filterDiv) return;
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.id = 'search-home';
-    searchInput.placeholder = 'Search by make, model, type, or description...';
-    searchInput.setAttribute('aria-label', 'Search cars');
-    searchInput.style.marginRight = '1rem';
-    filterDiv.insertBefore(searchInput, filterDiv.firstChild);
-    // Suggestions
-    const keywords = Array.from(new Set(homeCars.flatMap(car => [
-      car.make,
-      car.model,
-      car.type,
-      car.description || ''
-    ]))).filter(Boolean);
-    let suggestionBox = document.createElement('ul');
-    suggestionBox.id = 'suggestion-box-home';
-    suggestionBox.style.position = 'absolute';
-    suggestionBox.style.background = '#fff';
-    suggestionBox.style.border = '1px solid #ccc';
-    suggestionBox.style.zIndex = '10';
-    suggestionBox.style.listStyle = 'none';
-    suggestionBox.style.padding = '0';
-    suggestionBox.style.margin = '0';
-    suggestionBox.style.width = '100%';
-    suggestionBox.style.maxHeight = '180px';
-    suggestionBox.style.overflowY = 'auto';
+searchInput.addEventListener('input', function(e) {
+  const value = e.target.value.toLowerCase();
+  // Show suggestions
+  if (value.length > 0) {
+    const matches = searchKeywords.filter(k => k.toLowerCase().includes(value));
+    suggestionBox.innerHTML = '';
+    matches.slice(0, 8).forEach(match => {
+      const li = document.createElement('li');
+      li.textContent = match;
+      li.tabIndex = 0;
+      li.style.padding = '0.5rem 1rem';
+      li.style.cursor = 'pointer';
+      li.addEventListener('mousedown', function(ev) {
+        ev.preventDefault();
+        searchInput.value = match;
+        suggestionBox.style.display = 'none';
+        renderCarsAJAX(match.toLowerCase());
+      });
+      li.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Enter') {
+          searchInput.value = match;
+          suggestionBox.style.display = 'none';
+          renderCarsAJAX(match.toLowerCase());
+        }
+      });
+      suggestionBox.appendChild(li);
+    });
+    suggestionBox.style.display = matches.length ? 'block' : 'none';
+  } else {
     suggestionBox.style.display = 'none';
-    filterDiv.appendChild(suggestionBox);
-    searchInput.addEventListener('input', function(e) {
-      const value = e.target.value.toLowerCase();
-      if (value.length > 0) {
-        const matches = keywords.filter(k => k.toLowerCase().includes(value));
-        suggestionBox.innerHTML = '';
-        matches.slice(0, 8).forEach(match => {
-          const li = document.createElement('li');
-          li.textContent = match;
-          li.tabIndex = 0;
-          li.style.padding = '0.5rem 1rem';
-          li.style.cursor = 'pointer';
-          li.addEventListener('mousedown', function(ev) {
-            ev.preventDefault();
-            searchInput.value = match;
-            suggestionBox.style.display = 'none';
-            renderHomeCarsAJAX(match.toLowerCase());
-          });
-          li.addEventListener('keydown', function(ev) {
-            if (ev.key === 'Enter') {
-              searchInput.value = match;
-              suggestionBox.style.display = 'none';
-              renderHomeCarsAJAX(match.toLowerCase());
-            }
-          });
-          suggestionBox.appendChild(li);
-        });
-        suggestionBox.style.display = matches.length ? 'block' : 'none';
-      } else {
-        suggestionBox.style.display = 'none';
-      }
-      renderHomeCarsAJAX(value);
-    });
-    window.addEventListener('mousedown', function(e) {
-      if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
-        suggestionBox.style.display = 'none';
-      }
-    });
-  });
-}
+  }
+  // Also trigger search as user types
+  renderCarsAJAX(value);
+});
 
-// Remove DOMContentLoaded check so filters/search/grid always render
-createHomeFilters();
-setTimeout(createHomeSearchBox, 250); // Wait for filters to render
-setTimeout(setupHomeFilterListeners, 500); // Wait for filters to render
-renderHomeCarsAJAX();
+window.addEventListener('mousedown', function(e) {
+  if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+    suggestionBox.style.display = 'none';
+  }
+});
+
+// Initial render
+renderCarsAJAX();
 
 const reservationIcon = document.getElementById('reservation-icon');
 if (reservationIcon) {

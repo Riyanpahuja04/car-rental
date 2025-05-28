@@ -28,10 +28,6 @@ function clearReservationForm() {
 function renderBookingPage() {
   const main = document.querySelector('main');
   main.innerHTML = '';
-  if (!isUserLoggedIn()) {
-    main.innerHTML = '<div class="reminder" style="text-align:center;margin:2rem auto;font-size:1.2rem;">You must be <a href="login.html" style="color:#003366;text-decoration:underline;">logged in</a> to make a reservation.</div>';
-    return;
-  }
   const vin = getVIN();
   if (!vin) {
     main.innerHTML = '<div class="reminder" style="text-align:center;margin:2rem auto;font-size:1.2rem;">Please choose a car from the car list before making a reservation.</div>';
@@ -151,6 +147,8 @@ function renderBookingPage() {
       validate();
       // Cancel button
       formDiv.querySelector('#cancel-btn').addEventListener('click', function() {
+        // Reset form fields
+        formDiv.reset && formDiv.reset();
         clearReservationForm();
         window.location.href = 'index.html';
       });
